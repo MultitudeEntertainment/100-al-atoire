@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tirage aléatoire 1 à 10</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1d4ed8, #020617);
+      color: #e5e7eb;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 20px;
+      padding: 28px 32px 32px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+      min-width: 320px;
+      text-align: center;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 0 0 6px;
+    }
+
+    p {
+      margin: 0 0 18px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .scene {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 18px;
+      perspective: 800px;
+    }
+
+    .coin-wrapper {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .coin {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 90px;
+      height: 90px;
+      margin: -45px 0 0 -45px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #facc15, #eab308, #854d0e);
+      box-shadow:
+        0 10px 18px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 3px rgba(250, 250, 250, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1f2937;
+      font-weight: 800;
+      font-size: 2.2rem;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+      transform-style: preserve-3d;
+    }
+
+    .coin::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      border: 2px solid rgba(250, 250, 250, 0.4);
+      box-shadow:
+        inset 0 0 10px rgba(0, 0, 0, 0.35),
+        0 0 0 1px rgba(0, 0, 0, 0.4);
+    }
+
+    .shadow {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      width: 90px;
+      height: 18px;
+      margin-left: -45px;
+      background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.9), transparent);
+      opacity: 0.7;
+      filter: blur(1px);
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .coin.flip {
+      animation: flip 0.9s cubic-bezier(0.25, 0.7, 0.3, 1);
+    }
+
+    .shadow.flip {
+      animation: shadow-bounce 0.9s cubic-bezier(0.25, 0.7, 0.3, 1);
+    }
+
+    @keyframes flip {
+      0% {
+        transform: translateY(0) rotateY(0deg) rotateX(0deg);
+      }
+      25% {
+        transform: translateY(-70px) rotateY(180deg) rotateX(18deg);
+      }
+      50% {
+        transform: translateY(-110px) rotateY(360deg) rotateX(-10deg);
+      }
+      75% {
+        transform: translateY(-40px) rotateY(540deg) rotateX(10deg);
+      }
+      100% {
+        transform: translateY(0) rotateY(720deg) rotateX(0deg);
+      }
+    }
+
+    @keyframes shadow-bounce {
+      0% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+      25% {
+        transform: scale(0.8);
+        opacity: 0.4;
+      }
+      50% {
+        transform: scale(0.6);
+        opacity: 0.25;
+      }
+      75% {
+        transform: scale(0.9);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      box-shadow: 0 10px 22px rgba(22, 163, 74, 0.45);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(22, 163, 74, 0.55);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Tirage aléatoire</h1>
+    <p>La pièce saute, tourne, et retombe sur un nombre entre 1 et 10.</p>
+
+    <div class="scene">
+      <div class="coin-wrapper">
+        <div class="coin" id="coin">–</div>
+        <div class="shadow" id="shadow"></div>
+      </div>
+    </div>
+
+    <button id="btn">Lancer la pièce</button>
+    <div class="hint">Chaque lancer choisit un nombre de façon aléatoire.</div>
+  </div>
+
+  <script>
+    const btn = document.getElementById('btn');
+    const coin = document.getElementById('coin');
+    const shadow = document.getElementById('shadow');
+
+    function getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    btn.addEventListener('click', () => {
+      if (coin.classList.contains('flip')) return;
+
+      const result = getRandomInt(1, 10);
+
+      coin.classList.add('flip');
+      shadow.classList.add('flip');
+
+      setTimeout(() => {
+        coin.textContent = result;
+      }, 450);
+
+      coin.addEventListener('animationend', () => {
+        coin.classList.remove('flip');
+        shadow.classList.remove('flip');
+      }, { once: true });
+    });
+  </script>
+</body>
+</html>
