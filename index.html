@@ -2,228 +2,663 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Tirage aléatoire 1 à 10</title>
+  <title>Hasard Rustique – Multitude Entropy Dump</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1d4ed8, #020617);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #0b1120;
       color: #e5e7eb;
     }
-
-    .card {
-      background: rgba(15, 23, 42, 0.95);
-      border-radius: 20px;
-      padding: 28px 32px 32px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
-      min-width: 320px;
-      text-align: center;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-    }
-
-    h1 {
-      font-size: 1.4rem;
-      margin: 0 0 6px;
-    }
-
-    p {
-      margin: 0 0 18px;
-      font-size: 0.9rem;
-      color: #9ca3af;
-    }
-
-    .scene {
-      width: 140px;
-      height: 140px;
-      margin: 0 auto 18px;
-      perspective: 800px;
-    }
-
-    .coin-wrapper {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-    }
-
-    .coin {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 90px;
-      height: 90px;
-      margin: -45px 0 0 -45px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #facc15, #eab308, #854d0e);
-      box-shadow:
-        0 10px 18px rgba(0, 0, 0, 0.6),
-        inset 0 0 0 3px rgba(250, 250, 250, 0.25);
+    header {
+      position: sticky;
+      top: 0;
+      background: #020617;
+      border-bottom: 1px solid #1f2937;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: #1f2937;
-      font-weight: 800;
+      gap: 16px;
+      z-index: 10;
+    }
+    .result-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .result-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+    }
+    .result-value {
       font-size: 2.2rem;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-      transform-style: preserve-3d;
+      font-weight: 800;
+      color: #f9fafb;
     }
-
-    .coin::before {
-      content: "";
-      position: absolute;
-      inset: 6px;
-      border-radius: 50%;
-      border: 2px solid rgba(250, 250, 250, 0.4);
-      box-shadow:
-        inset 0 0 10px rgba(0, 0, 0, 0.35),
-        0 0 0 1px rgba(0, 0, 0, 0.4);
+    .fusion-line {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
-    .shadow {
-      position: absolute;
-      bottom: 18px;
-      left: 50%;
-      width: 90px;
-      height: 18px;
-      margin-left: -45px;
-      background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.9), transparent);
-      opacity: 0.7;
-      filter: blur(1px);
-      transition: transform 0.25s ease, opacity 0.25s ease;
+    .controls {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
     }
-
-    .coin.flip {
-      animation: flip 0.9s cubic-bezier(0.25, 0.7, 0.3, 1);
-    }
-
-    .shadow.flip {
-      animation: shadow-bounce 0.9s cubic-bezier(0.25, 0.7, 0.3, 1);
-    }
-
-    @keyframes flip {
-      0% {
-        transform: translateY(0) rotateY(0deg) rotateX(0deg);
-      }
-      25% {
-        transform: translateY(-70px) rotateY(180deg) rotateX(18deg);
-      }
-      50% {
-        transform: translateY(-110px) rotateY(360deg) rotateX(-10deg);
-      }
-      75% {
-        transform: translateY(-40px) rotateY(540deg) rotateX(10deg);
-      }
-      100% {
-        transform: translateY(0) rotateY(720deg) rotateX(0deg);
-      }
-    }
-
-    @keyframes shadow-bounce {
-      0% {
-        transform: scale(1);
-        opacity: 0.7;
-      }
-      25% {
-        transform: scale(0.8);
-        opacity: 0.4;
-      }
-      50% {
-        transform: scale(0.6);
-        opacity: 0.25;
-      }
-      75% {
-        transform: scale(0.9);
-        opacity: 0.5;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 0.7;
-      }
-    }
-
     button {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 22px;
-      font-size: 0.95rem;
-      font-weight: 600;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 4px 10px;
+      font-size: 0.75rem;
       cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: white;
-      box-shadow: 0 10px 22px rgba(22, 163, 74, 0.45);
-      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
     }
-
     button:hover {
-      filter: brightness(1.05);
-      transform: translateY(-1px);
-      box-shadow: 0 14px 28px rgba(22, 163, 74, 0.55);
+      background: #111827;
     }
-
-    button:active {
-      transform: translateY(1px) scale(0.98);
-      box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
+    main {
+      padding: 10px 14px 40px;
     }
-
-    .hint {
-      margin-top: 10px;
+    h2 {
+      font-size: 0.9rem;
+      margin: 16px 0 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9ca3af;
+    }
+    .section {
+      border-bottom: 1px solid #111827;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    .param {
       font-size: 0.8rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .param-label {
       color: #6b7280;
+    }
+    .hint {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Tirage aléatoire</h1>
-    <p>La pièce saute, tourne, et retombe sur un nombre entre 1 et 10.</p>
+  <header>
+    <div class="result-block">
+      <div class="result-label">Résultat actuel</div>
+      <div class="result-value" id="result-value">–</div>
+      <div class="fusion-line" id="fusion-line">En attente d’un tirage…</div>
+    </div>
+    <div class="controls">
+      <button id="btn-roll">Tirer un nombre (1–10)</button>
+      <button id="btn-reset">Reset entropie</button>
+    </div>
+  </header>
 
-    <div class="scene">
-      <div class="coin-wrapper">
-        <div class="coin" id="coin">–</div>
-        <div class="shadow" id="shadow"></div>
+  <main>
+    <div class="hint">
+      Bouge la souris, clique, tape au clavier, redimensionne la fenêtre, scrolle… puis clique sur “Tirer un nombre”.
+    </div>
+
+    <!-- Crypto -->
+    <div class="section">
+      <h2>Crypto – Hasard matériel</h2>
+      <div class="param">
+        <span class="param-label">crypto.bytes16_hex:</span>
+        <span id="p-crypto-hex">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">crypto.bytes32_hex:</span>
+        <span id="p-crypto-hex32">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">crypto.support:</span>
+        <span id="p-crypto-support">–</span>
       </div>
     </div>
 
-    <button id="btn">Lancer la pièce</button>
-    <div class="hint">Chaque lancer choisit un nombre de façon aléatoire.</div>
-  </div>
+    <!-- Temps & jitter -->
+    <div class="section">
+      <h2>Temps & Jitter</h2>
+      <div class="param">
+        <span class="param-label">time.now_ms:</span>
+        <span id="p-time-now">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">time.delta_ms:</span>
+        <span id="p-time-delta">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">time.jitter_raw:</span>
+        <span id="p-time-jitter">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">time.jitter_norm:</span>
+        <span id="p-time-jitter-norm">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">time.history_last10:</span>
+        <span id="p-time-history">–</span>
+      </div>
+    </div>
+
+    <!-- Souris -->
+    <div class="section">
+      <h2>Mouvements souris</h2>
+      <div class="param">
+        <span class="param-label">mouse.sample_count:</span>
+        <span id="p-mouse-count">0</span>
+      </div>
+      <div class="param">
+        <span class="param-label">mouse.last_position:</span>
+        <span id="p-mouse-last">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">mouse.entropy_score_0_1:</span>
+        <span id="p-mouse-score">0</span>
+      </div>
+      <div class="param">
+        <span class="param-label">mouse.samples_compact:</span>
+        <span id="p-mouse-samples">–</span>
+      </div>
+    </div>
+
+    <!-- Clics -->
+    <div class="section">
+      <h2>Clics & Interactions</h2>
+      <div class="param">
+        <span class="param-label">click.total_count:</span>
+        <span id="p-click-count">0</span>
+      </div>
+      <div class="param">
+        <span class="param-label">click.last_position:</span>
+        <span id="p-click-last">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">click.timestamps_last10:</span>
+        <span id="p-click-times">–</span>
+      </div>
+    </div>
+
+    <!-- Clavier -->
+    <div class="section">
+      <h2>Clavier</h2>
+      <div class="param">
+        <span class="param-label">key.total_count:</span>
+        <span id="p-key-count">0</span>
+      </div>
+      <div class="param">
+        <span class="param-label">key.last_key:</span>
+        <span id="p-key-last">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">key.sequence_last20:</span>
+        <span id="p-key-seq">–</span>
+      </div>
+    </div>
+
+    <!-- Fenêtre -->
+    <div class="section">
+      <h2>Fenêtre & viewport</h2>
+      <div class="param">
+        <span class="param-label">window.size:</span>
+        <span id="p-win-size">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">window.device_pixel_ratio:</span>
+        <span id="p-win-dpr">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">window.resize_count:</span>
+        <span id="p-win-resize-count">0</span>
+      </div>
+      <div class="param">
+        <span class="param-label">window.resize_last:</span>
+        <span id="p-win-resize-last">–</span>
+      </div>
+    </div>
+
+    <!-- Scroll -->
+    <div class="section">
+      <h2>Scroll</h2>
+      <div class="param">
+        <span class="param-label">scroll.y:</span>
+        <span id="p-scroll-y">0</span>
+      </div>
+      <div class="param">
+        <span class="param-label">scroll.events_count:</span>
+        <span id="p-scroll-count">0</span>
+      </div>
+      <div class="param">
+        <span class="param-label">scroll.history_last10:</span>
+        <span id="p-scroll-history">–</span>
+      </div>
+    </div>
+
+    <!-- Bruit interne -->
+    <div class="section">
+      <h2>Micro‑bruit interne</h2>
+      <div class="param">
+        <span class="param-label">noise.counter:</span>
+        <span id="p-noise-counter">0</span>
+      </div>
+      <div class="param">
+        <span class="param-label">noise.mix:</span>
+        <span id="p-noise-mix">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">noise.random_a_b:</span>
+        <span id="p-noise-ab">–</span>
+      </div>
+    </div>
+
+    <!-- Performance -->
+    <div class="section">
+      <h2>Performance & timing</h2>
+      <div class="param">
+        <span class="param-label">perf.now_ms:</span>
+        <span id="p-perf-now">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">perf.memory_like:</span>
+        <span id="p-perf-mem">–</span>
+      </div>
+    </div>
+
+    <!-- Fusion -->
+    <div class="section">
+      <h2>Fusion & hash</h2>
+      <div class="param">
+        <span class="param-label">fusion.hash_crypto_32:</span>
+        <span id="p-fusion-hc">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">fusion.hash_time_32:</span>
+        <span id="p-fusion-ht">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">fusion.hash_mouse_32:</span>
+        <span id="p-fusion-hm">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">fusion.hash_noise_32:</span>
+        <span id="p-fusion-hn">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">fusion.hash_click_32:</span>
+        <span id="p-fusion-hc2">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">fusion.hash_key_32:</span>
+        <span id="p-fusion-hk">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">fusion.hash_window_32:</span>
+        <span id="p-fusion-hwin">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">fusion.hash_scroll_32:</span>
+        <span id="p-fusion-hscroll">–</span>
+      </div>
+      <div class="param">
+        <span class="param-label">fusion.final_32:</span>
+        <span id="p-fusion-final">–</span>
+      </div>
+    </div>
+  </main>
 
   <script>
-    const btn = document.getElementById('btn');
-    const coin = document.getElementById('coin');
-    const shadow = document.getElementById('shadow');
+    // État
+    const state = {
+      timeLast: performance.now(),
+      timeHistory: [],
+      mouseSamples: [],
+      mouseScore: 0,
+      clickCount: 0,
+      clickTimes: [],
+      clickLast: null,
+      keyCount: 0,
+      keyLast: null,
+      keySeq: [],
+      winResizeCount: 0,
+      winResizeLast: null,
+      scrollY: 0,
+      scrollCount: 0,
+      scrollHistory: [],
+      noiseCounter: 0,
+      noiseMix: 0,
+      noiseAB: null
+    };
 
-    function getRandomInt(min, max) {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+    // Helpers DOM
+    function set(id, value) {
+      document.getElementById(id).textContent = value;
     }
 
-    btn.addEventListener('click', () => {
-      if (coin.classList.contains('flip')) return;
+    function toHex(bytes) {
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
-      const result = getRandomInt(1, 10);
+    // Hash simple 32 bits
+    function hash32FromBytes(bytes) {
+      let h = 0x811c9dc5;
+      for (let i = 0; i < bytes.length; i++) {
+        h ^= bytes[i];
+        h = Math.imul(h, 0x01000193);
+        h >>>= 0;
+      }
+      return h >>> 0;
+    }
 
-      coin.classList.add('flip');
-      shadow.classList.add('flip');
+    function hash32FromFloats(floats) {
+      const buf = new Uint8Array(floats.length * 4);
+      const view = new DataView(buf.buffer);
+      floats.forEach((f, i) => view.setFloat32(i * 4, f));
+      return hash32FromBytes(buf);
+    }
 
-      setTimeout(() => {
-        coin.textContent = result;
-      }, 450);
+    // Crypto
+    function sampleCrypto() {
+      if (!window.crypto || !window.crypto.getRandomValues) {
+        set('p-crypto-support', 'crypto.getRandomValues: indisponible');
+        set('p-crypto-hex', '–');
+        set('p-crypto-hex32', '–');
+        return { bytes16: new Uint8Array(0), bytes32: new Uint8Array(0) };
+      }
+      set('p-crypto-support', 'crypto.getRandomValues: OK');
+      const b16 = new Uint8Array(16);
+      const b32 = new Uint8Array(32);
+      crypto.getRandomValues(b16);
+      crypto.getRandomValues(b32);
+      set('p-crypto-hex', toHex(b16));
+      set('p-crypto-hex32', toHex(b32));
+      return { bytes16: b16, bytes32: b32 };
+    }
 
-      coin.addEventListener('animationend', () => {
-        coin.classList.remove('flip');
-        shadow.classList.remove('flip');
-      }, { once: true });
+    // Temps & jitter
+    function sampleTime() {
+      const now = performance.now();
+      const delta = now - state.timeLast;
+      state.timeLast = now;
+      const jitterRaw = (delta % 17.371) * 1000000;
+      const jitterNorm = Math.min(1, Math.abs(jitterRaw) / 10000000);
+
+      state.timeHistory.push(delta);
+      if (state.timeHistory.length > 10) state.timeHistory.shift();
+
+      set('p-time-now', now.toFixed(3));
+      set('p-time-delta', delta.toFixed(3));
+      set('p-time-jitter', jitterRaw.toFixed(0));
+      set('p-time-jitter-norm', jitterNorm.toFixed(4));
+      set('p-time-history', state.timeHistory.map(v => v.toFixed(2)).join(', '));
+
+      return { now, delta, jitterRaw, jitterNorm };
+    }
+
+    // Souris
+    window.addEventListener('mousemove', (e) => {
+      const t = performance.now();
+      state.mouseSamples.push({ x: e.clientX, y: e.clientY, t });
+      if (state.mouseSamples.length > 128) state.mouseSamples.shift();
+      state.mouseScore = Math.min(1, state.mouseSamples.length / 64);
+
+      const last = state.mouseSamples[state.mouseSamples.length - 1];
+      set('p-mouse-count', state.mouseSamples.length.toString());
+      set('p-mouse-last', `x=${last.x}, y=${last.y}, t=${last.t.toFixed(2)}`);
+      set('p-mouse-score', state.mouseScore.toFixed(3));
+
+      const compact = state.mouseSamples
+        .slice(-10)
+        .map(s => `[${s.x},${s.y},${s.t.toFixed(1)}]`)
+        .join(' ');
+      set('p-mouse-samples', compact);
     });
+
+    // Clics
+    window.addEventListener('click', (e) => {
+      state.clickCount++;
+      const t = performance.now();
+      state.clickLast = { x: e.clientX, y: e.clientY, t };
+      state.clickTimes.push(t);
+      if (state.clickTimes.length > 10) state.clickTimes.shift();
+
+      set('p-click-count', state.clickCount.toString());
+      set('p-click-last', `x=${e.clientX}, y=${e.clientY}, t=${t.toFixed(2)}`);
+      set('p-click-times', state.clickTimes.map(v => v.toFixed(1)).join(', '));
+    });
+
+    // Clavier
+    window.addEventListener('keydown', (e) => {
+      state.keyCount++;
+      state.keyLast = e.key;
+      state.keySeq.push(e.key);
+      if (state.keySeq.length > 20) state.keySeq.shift();
+
+      set('p-key-count', state.keyCount.toString());
+      set('p-key-last', JSON.stringify(e.key));
+      set('p-key-seq', state.keySeq.map(k => JSON.stringify(k)).join(' '));
+    });
+
+    // Fenêtre
+    function updateWindowInfo() {
+      set('p-win-size', `${window.innerWidth}x${window.innerHeight}`);
+      set('p-win-dpr', window.devicePixelRatio.toString());
+    }
+    updateWindowInfo();
+
+    window.addEventListener('resize', () => {
+      state.winResizeCount++;
+      state.winResizeLast = performance.now();
+      updateWindowInfo();
+      set('p-win-resize-count', state.winResizeCount.toString());
+      set('p-win-resize-last', state.winResizeLast.toFixed(2));
+    });
+
+    // Scroll
+    window.addEventListener('scroll', () => {
+      state.scrollY = window.scrollY;
+      state.scrollCount++;
+      state.scrollHistory.push(state.scrollY);
+      if (state.scrollHistory.length > 10) state.scrollHistory.shift();
+
+      set('p-scroll-y', state.scrollY.toString());
+      set('p-scroll-count', state.scrollCount.toString());
+      set('p-scroll-history', state.scrollHistory.join(', '));
+    });
+
+    // Bruit interne
+    function sampleNoise() {
+      state.noiseCounter++;
+      const a = Math.random();
+      const b = Math.random();
+      const c = Math.sin(performance.now() * 0.00123 + a * 17.17);
+      const mix = (a * 0.37 + b * 0.41 + (c + 1) * 0.11) % 1;
+      state.noiseMix = mix;
+      state.noiseAB = { a, b };
+
+      set('p-noise-counter', state.noiseCounter.toString());
+      set('p-noise-mix', mix.toFixed(8));
+      set('p-noise-ab', `a=${a.toFixed(6)}, b=${b.toFixed(6)}, c=${c.toFixed(6)}`);
+
+      return { a, b, c, mix };
+    }
+
+    // Performance
+    function samplePerf() {
+      const now = performance.now();
+      set('p-perf-now', now.toFixed(3));
+      const fakeMem = (now % 1234567) / 1234.567;
+      set('p-perf-mem', fakeMem.toFixed(3));
+      return { now, fakeMem };
+    }
+
+    // Fusion
+    function fusionEntropy() {
+      const cryptoSamples = sampleCrypto();
+      const timeSample = sampleTime();
+      const noiseSample = sampleNoise();
+      const perfSample = samplePerf();
+
+      const mouseFloats = [];
+      for (const s of state.mouseSamples) {
+        mouseFloats.push(
+          (s.x % 2048) / 2048,
+          (s.y % 2048) / 2048,
+          (s.t % 1000) / 1000
+        );
+      }
+
+      const clickFloats = state.clickTimes.map(t => (t % 1000) / 1000);
+      const keyFloats = state.keySeq.map((k, i) => ((k.charCodeAt(0) || i) % 255) / 255);
+      const winFloats = [
+        window.innerWidth / 4096,
+        window.innerHeight / 2160,
+        window.devicePixelRatio,
+        state.winResizeCount
+      ];
+      const scrollFloats = [
+        state.scrollY / 10000,
+        state.scrollCount / 1000,
+        ...state.scrollHistory.map(v => v / 10000)
+      ];
+
+      const hCrypto = hash32FromBytes(cryptoSamples.bytes32);
+      const hTime = hash32FromFloats([timeSample.delta, timeSample.jitterRaw, timeSample.jitterNorm]);
+      const hNoise = hash32FromFloats([noiseSample.a, noiseSample.b, noiseSample.c, noiseSample.mix]);
+      const hMouse = mouseFloats.length ? hash32FromFloats(mouseFloats) : 0x12345678;
+      const hClick = clickFloats.length ? hash32FromFloats(clickFloats) : 0x87654321;
+      const hKey = keyFloats.length ? hash32FromFloats(keyFloats) : 0xabcdef01;
+      const hWin = hash32FromFloats(winFloats);
+      const hScroll = scrollFloats.length ? hash32FromFloats(scrollFloats) : 0x10fedcba;
+
+      set('p-fusion-hc', '0x' + hCrypto.toString(16));
+      set('p-fusion-ht', '0x' + hTime.toString(16));
+      set('p-fusion-hn', '0x' + hNoise.toString(16));
+      set('p-fusion-hm', '0x' + hMouse.toString(16));
+      set('p-fusion-hc2', '0x' + hClick.toString(16));
+      set('p-fusion-hk', '0x' + hKey.toString(16));
+      set('p-fusion-hwin', '0x' + hWin.toString(16));
+      set('p-fusion-hscroll', '0x' + hScroll.toString(16));
+
+      const combined =
+        (hCrypto ^ (hTime << 7 | hTime >>> 25)) ^
+        (hNoise << 13 | hNoise >>> 19) ^
+        (hMouse << 3 | hMouse >>> 29) ^
+        (hClick << 11 | hClick >>> 21) ^
+        (hKey << 5 | hKey >>> 27) ^
+        (hWin << 17 | hWin >>> 15) ^
+        (hScroll << 9 | hScroll >>> 23);
+
+      const final = hash32FromFloats([
+        combined / 0xffffffff,
+        state.mouseScore,
+        state.noiseCounter,
+        state.clickCount,
+        state.keyCount,
+        state.scrollCount,
+        state.winResizeCount
+      ]);
+
+      set('p-fusion-final', '0x' + final.toString(16));
+
+      const fusionText =
+        `crypto=${'0x' + hCrypto.toString(16)} | time=${'0x' + hTime.toString(16)} | ` +
+        `mouse=${'0x' + hMouse.toString(16)} | noise=${'0x' + hNoise.toString(16)} | ` +
+        `click=${'0x' + hClick.toString(16)} | key=${'0x' + hKey.toString(16)} | ` +
+        `win=${'0x' + hWin.toString(16)} | scroll=${'0x' + hScroll.toString(16)} | ` +
+        `final=${'0x' + final.toString(16)}`;
+
+      document.getElementById('fusion-line').textContent = fusionText;
+
+      return final >>> 0;
+    }
+
+    function randomIntFromFusion(min, max) {
+      const h = fusionEntropy();
+      const range = max - min + 1;
+      const value = min + (h % range);
+      return { value, h };
+    }
+
+    // UI
+    const btnRoll = document.getElementById('btn-roll');
+    const btnReset = document.getElementById('btn-reset');
+
+    btnRoll.addEventListener('click', () => {
+      const { value, h } = randomIntFromFusion(1, 10);
+      set('result-value', value.toString());
+      document.getElementById('fusion-line').textContent += ` | tirage=${value}`;
+    });
+
+    btnReset.addEventListener('click', () => {
+      state.mouseSamples = [];
+      state.mouseScore = 0;
+      state.clickCount = 0;
+      state.clickTimes = [];
+      state.clickLast = null;
+      state.keyCount = 0;
+      state.keyLast = null;
+      state.keySeq = [];
+      state.winResizeCount = 0;
+      state.winResizeLast = null;
+      state.scrollY = 0;
+      state.scrollCount = 0;
+      state.scrollHistory = [];
+      state.noiseCounter = 0;
+      state.noiseMix = 0;
+      state.noiseAB = null;
+      state.timeHistory = [];
+
+      set('p-mouse-count', '0');
+      set('p-mouse-last', '–');
+      set('p-mouse-score', '0');
+      set('p-mouse-samples', '–');
+      set('p-click-count', '0');
+      set('p-click-last', '–');
+      set('p-click-times', '–');
+      set('p-key-count', '0');
+      set('p-key-last', '–');
+      set('p-key-seq', '–');
+      set('p-win-resize-count', '0');
+      set('p-win-resize-last', '–');
+      set('p-scroll-y', '0');
+      set('p-scroll-count', '0');
+      set('p-scroll-history', '–');
+      set('p-noise-counter', '0');
+      set('p-noise-mix', '–');
+      set('p-noise-ab', '–');
+      set('p-time-history', '–');
+      set('p-fusion-hc', '–');
+      set('p-fusion-ht', '–');
+      set('p-fusion-hn', '–');
+      set('p-fusion-hm', '–');
+      set('p-fusion-hc2', '–');
+      set('p-fusion-hk', '–');
+      set('p-fusion-hwin', '–');
+      set('p-fusion-hscroll', '–');
+      set('p-fusion-final', '–');
+      set('result-value', '–');
+      document.getElementById('fusion-line').textContent = 'En attente d’un tirage…';
+    });
+
+    // Tick bruit
+    setInterval(() => {
+      sampleNoise();
+      samplePerf();
+    }, 2000);
   </script>
 </body>
 </html>
